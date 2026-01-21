@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import { Lock, Zap, Smartphone } from 'lucide-react';
 import HowItWorks from '@/components/HowItWorks';
+import ForParents from '@/components/ForParents';
 
 export default function LandingPage() {
   return (
@@ -12,6 +13,7 @@ export default function LandingPage() {
       <Hero />
 
      <HowItWorks/>
+     <ForParents/>
     </main>
   );
 }
