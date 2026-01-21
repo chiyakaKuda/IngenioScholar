@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import { Lock, Zap, Smartphone } from 'lucide-react';
+import HowItWorks from '@/components/HowItWorks';
 
 export default function LandingPage() {
   return (
@@ -10,24 +11,7 @@ export default function LandingPage() {
       
       <Hero />
 
-      {/* Feature Section */}
-      <section className="px-6 md:px-16 py-24 grid grid-cols-1 md:grid-cols-3 gap-10 bg-white border-t border-gray-100">
-        <Feature 
-          icon={<Lock size={32} strokeWidth={2.5} />} 
-          title="Zero Custody" 
-          desc="We don't hold the funds. All money remains secure in the partner bank at all times."
-        />
-        <Feature 
-          icon={<Zap size={32} strokeWidth={2.5} />} 
-          title="Dual Currency" 
-          desc="Set independent authorization rules for USD and ZiG on the same account number."
-        />
-        <Feature 
-          icon={<Smartphone size={32} strokeWidth={2.5} />} 
-          title="Instant Control" 
-          desc="Instantly freeze cards or set spending windows directly from your dashboard."
-        />
-      </section>
+     <HowItWorks/>
     </main>
   );
 }
