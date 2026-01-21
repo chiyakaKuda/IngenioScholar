@@ -1,21 +1,42 @@
 import React from 'react';
+import { Reveal } from '@/components/Reveal';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import { Lock, Zap, Smartphone } from 'lucide-react';
 import HowItWorks from '@/components/HowItWorks';
 import ForParents from '@/components/ForParents';
 import ForSchools from '@/components/ForSchools';
+import Security from '@/components/Security';
+import Footer from '@/components/Footer';
+
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen flex flex-col bg-[#F8FAFC]">
       <Navbar />
       
-      <Hero />
+    {/* Hero usually appears immediately, so we use a very short delay */}
+    <Reveal delay={0.1}>
+        <Hero />
+      </Reveal>
 
-     <HowItWorks/>
-     <ForParents/>
-     <ForSchools/>
+      <Reveal>
+        <HowItWorks />
+      </Reveal>
+
+      <Reveal>
+        <ForParents />
+      </Reveal>
+
+      <Reveal>
+        <ForSchools />
+      </Reveal>
+
+      <Reveal>
+        <Security />
+      </Reveal>
+      
+      <Footer />
     </main>
   );
 }
