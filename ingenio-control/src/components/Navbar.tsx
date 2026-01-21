@@ -1,12 +1,18 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
+"use client";
+
+import React, { useState } from 'react';
+import { ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
 
 export default function Navbar() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
   return (
     <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-50 font-sans">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         
-        {/* LEFT: Logo + Trust Signal */}
+        {/* LEFT: Logo */}
         <a href="#" className="flex flex-col hover:opacity-90 transition-opacity">
           <div className="text-2xl font-black tracking-tighter text-[#111827] leading-none">
             INGENIO<span className="text-[#3c74bf]">FINCONTROLLER</span>
@@ -16,7 +22,7 @@ export default function Navbar() {
           </span>
         </a>
 
-        {/* CENTER: Main Nav Items */}
+        {/* CENTER: Desktop Nav Items (Hidden on Mobile) */}
         <div className="hidden lg:flex items-center gap-8">
           <NavLink label="How It Works" href="#how-it-works" hasDropdown />
           <NavLink label="For Parents" href="#for-parents" hasDropdown />
@@ -26,13 +32,51 @@ export default function Navbar() {
         </div>
 
         {/* RIGHT SIDE: Actions */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <button className="hidden md:block text-sm font-extrabold text-gray-500 hover:text-[#3c74bf] transition-colors">
             Partner With Us
           </button>
-          <button className="bg-[#3c74bf] text-white px-8 py-3 rounded-full font-black text-sm hover:bg-[#2e5b99] transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0">
+          
+          {/* DESKTOP ONLY: Get Started button (Hidden on mobile) */}
+          <button className="hidden lg:block bg-[#3c74bf] text-white px-8 py-3 rounded-full font-black text-sm hover:bg-[#2e5b99] transition-all shadow-md active:scale-95">
             Get Started
           </button>
+          
+          {/* Mobile Toggle Button (Always visible on mobile) */}
+          <button 
+            className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle Menu"
+          >
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+      </div>
+
+      {/* MOBILE MENU: Slide Down */}
+      <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white border-b border-gray-100 ${isMobileMenuOpen ? 'max-h-[85vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="px-6 py-8 space-y-8">
+          <div className="flex flex-col gap-6">
+            <MobileNavLink label="How It Works" href="#how-it-works" onClick={toggleMobileMenu} />
+            <MobileNavLink label="For Parents" href="#for-parents" onClick={toggleMobileMenu} />
+            <MobileNavLink label="For Schools" href="#for-schools" onClick={toggleMobileMenu} />
+            <MobileNavLink label="Security & Trust" href="#security" onClick={toggleMobileMenu} />
+            <MobileNavLink label="About" href="#about" onClick={toggleMobileMenu} />
+          </div>
+
+          <div className="pt-8 border-t border-gray-100 space-y-4">
+            {/* MOBILE ONLY: Prominent Get Started button inside the drawer */}
+            <button 
+              onClick={toggleMobileMenu}
+              className="w-full bg-[#3c74bf] text-white p-5 rounded-2xl font-black text-xl flex items-center justify-center gap-3 shadow-xl active:scale-[0.98] transition-transform"
+            >
+              Get Started <ArrowRight size={22} />
+            </button>
+            
+            <button className="w-full text-center py-2 font-bold text-gray-400 text-sm">
+              Partner With Us
+            </button>
+          </div>
         </div>
       </div>
     </nav>
@@ -42,7 +86,6 @@ export default function Navbar() {
 function NavLink({ label, href, hasDropdown = false }: { label: string; href: string; hasDropdown?: boolean }) {
   return (
     <div className="group relative cursor-pointer py-2">
-      {/* Changed from button to anchor tag for actual navigation */}
       <a 
         href={href} 
         className="flex items-center gap-1 text-[15px] font-extrabold text-gray-600 group-hover:text-[#3c74bf] transition-colors"
@@ -50,11 +93,8 @@ function NavLink({ label, href, hasDropdown = false }: { label: string; href: st
         {label}
         {hasDropdown && <ChevronDown size={14} className="mt-0.5 opacity-50 group-hover:text-[#3c74bf] group-hover:opacity-100 transition-all" />}
       </a>
-
-      {/* Hover Dropdown Indicator Bar */}
       <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#3c74bf] transition-all group-hover:w-full rounded-full" />
       
-      {/* Dropdown Content */}
       {hasDropdown && (
         <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-100 rounded-2xl shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform group-hover:translate-y-0 translate-y-2 z-[60]">
           <div className="space-y-3">
@@ -76,6 +116,18 @@ function NavLink({ label, href, hasDropdown = false }: { label: string; href: st
         </div>
       )}
     </div>
+  );
+}
+
+function MobileNavLink({ label, href, onClick }: { label: string; href: string; onClick: () => void }) {
+  return (
+    <a 
+      href={href} 
+      onClick={onClick}
+      className="block text-2xl font-black text-[#111827] active:text-[#3c74bf] transition-colors"
+    >
+      {label}
+    </a>
   );
 }
 
