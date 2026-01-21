@@ -4,6 +4,7 @@ import Hero from '@/components/Hero';
 import { Lock, Zap, Smartphone } from 'lucide-react';
 import HowItWorks from '@/components/HowItWorks';
 import ForParents from '@/components/ForParents';
+import ForSchools from '@/components/ForSchools';
 
 export default function LandingPage() {
   return (
@@ -14,6 +15,7 @@ export default function LandingPage() {
 
      <HowItWorks/>
      <ForParents/>
+     <ForSchools/>
     </main>
   );
 }
