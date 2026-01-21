@@ -1,9 +1,15 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
 import { ArrowRight, ShieldCheck, Landmark, Users2, Lock } from 'lucide-react';
 import { Reveal } from './Reveal';
 
-const Hero = () => {
+interface HeroProps {
+  onAuthClick: () => void;
+}
+
+const Hero = ({ onAuthClick }: HeroProps) => {
   return (
     <section className="relative overflow-hidden bg-[#F8FAFC] py-16 md:py-24 font-sans">
       <div className="max-w-7xl mx-auto px-6">
@@ -34,12 +40,20 @@ const Hero = () => {
 
               {/* Main Actions */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button className="flex items-center justify-center gap-3 bg-[#3c74bf] text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-[#2e5b99] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                {/* Linked to Auth Flow */}
+                <button 
+                  onClick={onAuthClick}
+                  className="flex items-center justify-center gap-3 bg-[#3c74bf] text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-[#2e5b99] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                >
                   Get Started <ArrowRight size={22} />
                 </button>
-                <button className="px-10 py-5 rounded-2xl font-black text-lg border-2 border-[#3c74bf]/20 text-[#3c74bf] hover:bg-[#3c74bf]/5 transition-all">
+                
+                <a 
+                  href="#how-it-works"
+                  className="flex items-center justify-center px-10 py-5 rounded-2xl font-black text-lg border-2 border-[#3c74bf]/20 text-[#3c74bf] hover:bg-[#3c74bf]/5 transition-all"
+                >
                   How It Works
-                </button>
+                </a>
               </div>
 
               {/* Sub-Hero Trust Signal */}

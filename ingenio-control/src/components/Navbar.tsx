@@ -3,10 +3,19 @@
 import React, { useState } from 'react';
 import { ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
 
-export default function Navbar() {
+interface NavbarProps {
+  onAuthClick: () => void;
+}
+
+export default function Navbar({ onAuthClick }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  const handleMobileGetStarted = () => {
+    toggleMobileMenu();
+    onAuthClick();
+  };
 
   return (
     <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-50 font-sans">
@@ -22,7 +31,7 @@ export default function Navbar() {
           </span>
         </a>
 
-        {/* CENTER: Desktop Nav Items (Hidden on Mobile) */}
+        {/* CENTER: Desktop Nav Items */}
         <div className="hidden lg:flex items-center gap-8">
           <NavLink label="How It Works" href="#how-it-works" hasDropdown />
           <NavLink label="For Parents" href="#for-parents" hasDropdown />
@@ -37,12 +46,15 @@ export default function Navbar() {
             Partner With Us
           </button>
           
-          {/* DESKTOP ONLY: Get Started button (Hidden on mobile) */}
-          <button className="hidden lg:block bg-[#3c74bf] text-white px-8 py-3 rounded-full font-black text-sm hover:bg-[#2e5b99] transition-all shadow-md active:scale-95">
+          {/* DESKTOP ONLY: Get Started button */}
+          <button 
+            onClick={onAuthClick}
+            className="hidden lg:block bg-[#3c74bf] text-white px-8 py-3 rounded-full font-black text-sm hover:bg-[#2e5b99] transition-all shadow-md active:scale-95"
+          >
             Get Started
           </button>
           
-          {/* Mobile Toggle Button (Always visible on mobile) */}
+          {/* Mobile Toggle Button */}
           <button 
             className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
             onClick={toggleMobileMenu}
@@ -65,9 +77,8 @@ export default function Navbar() {
           </div>
 
           <div className="pt-8 border-t border-gray-100 space-y-4">
-            {/* MOBILE ONLY: Prominent Get Started button inside the drawer */}
             <button 
-              onClick={toggleMobileMenu}
+              onClick={handleMobileGetStarted}
               className="w-full bg-[#3c74bf] text-white p-5 rounded-2xl font-black text-xl flex items-center justify-center gap-3 shadow-xl active:scale-[0.98] transition-transform"
             >
               Get Started <ArrowRight size={22} />
@@ -83,6 +94,7 @@ export default function Navbar() {
   );
 }
 
+// ... (Keep NavLink, MobileNavLink, and DropdownItem exactly as they were)
 function NavLink({ label, href, hasDropdown = false }: { label: string; href: string; hasDropdown?: boolean }) {
   return (
     <div className="group relative cursor-pointer py-2">
