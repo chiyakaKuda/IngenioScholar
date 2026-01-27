@@ -1,7 +1,6 @@
-// context/AppContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { SYSTEM_DATA, Student, SystemData } from '@/constants/data';
 
 interface AppContextType {
@@ -14,28 +13,49 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState(SYSTEM_DATA);
-  const [activeStudent, setActiveStudent] = useState(SYSTEM_DATA.students[0]);
+  const [data, setData] = useState<SystemData>(SYSTEM_DATA);
+  
+  // Initialize with the first student from the system data
+  const [activeStudent, setActiveStudent] = useState<Student>(SYSTEM_DATA.students[0]);
+
+  // Sync activeStudent whenever the global data changes 
+  // (This ensures rule toggles reflect in the activeStudent state immediately)
+  useEffect(() => {
+    const current = data.students.find(s => s.id === activeStudent.id);
+    if (current) {
+      setActiveStudent(current);
+    }
+  }, [data, activeStudent.id]);
 
   const toggleRule = (studentId: string, ruleId: string) => {
-    const updatedStudents = data.students.map(s => {
-      if (s.id === studentId) {
-        return {
-          ...s,
-          rules: s.rules.map(r => r.id === ruleId ? { ...r, active: !r.active } : r)
-        };
-      }
-      return s;
+    setData(prevData => {
+      const updatedStudents = prevData.students.map(student => {
+        if (student.id === studentId) {
+          return {
+            ...student,
+            rules: student.rules.map(rule => 
+              // Updated to use 'isActive' to match your new interface
+              rule.id === ruleId ? { ...rule, isActive: !rule.isActive } : rule
+            )
+          };
+        }
+        return student;
+      });
+
+      return {
+        ...prevData,
+        students: updatedStudents
+      };
     });
-    
-    setData({ ...data, students: updatedStudents });
-    // Update current active student reference
-    const current = updatedStudents.find(s => s.id === studentId);
-    if (current) setActiveStudent(current);
   };
 
   return (
-    <AppContext.Provider value={{ data, activeStudent, setActiveStudent, toggleRule }}>
+    <AppContext.Provider value={{ 
+      data, 
+      activeStudent, 
+      setActiveStudent, 
+      toggleRule 
+    }}>
       {children}
     </AppContext.Provider>
   );
@@ -43,6 +63,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
 export const useApp = () => {
   const context = useContext(AppContext);
-  if (!context) throw new Error("useApp must be used within AppProvider");
+  if (!context) {
+    throw new Error("useApp must be used within an AppProvider");
+  }
   return context;
 };

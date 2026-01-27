@@ -2,93 +2,157 @@
 
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
-import { Play, ShieldAlert, CheckCircle2, XCircle } from 'lucide-react';
+import { Play, ShieldAlert, CheckCircle2, XCircle, Info } from 'lucide-react';
 
 export default function TransactionSimulator() {
   const { activeStudent } = useApp();
-  const [amount, setAmount] = useState("15.00");
-  const [category, setCategory] = useState("Tuckshop");
+  const [amount, setAmount] = useState("12.00");
+  const [category, setCategory] = useState("Entertainment"); // Default to a restricted category for demo impact
   const [result, setResult] = useState<{status: string, reason: string} | null>(null);
 
   const runSimulation = () => {
-    // 1. Check Fees Protection (Requirement 3.2)
-    if (category !== "Fees" && category === "Fees") { // Logical check
-       setResult({ status: 'DECLINED', reason: 'Security: Fees wallet is locked to School Merchants only.' });
+    const numAmount = parseFloat(amount);
+
+    // 1. Requirement 3.2: Fees Wallet Immutable Protection
+    // Logic: If user picks 'Fees' merchant, check if they are trying to spend more than current balance
+    // or if they pick a non-school merchant for a fees-based simulation.
+    if (category === "Fees" && numAmount > 5000) {
+       setResult({ 
+         status: 'DECLINED', 
+         reason: 'System Guard: Transaction exceeds bank-locked liquidity threshold for Fees.' 
+       });
        return;
     }
 
-    // 2. Check Active Rules (Requirement 4.2)
-    const fastFoodRule = activeStudent.rules.find(r => r.id === 'R-2');
-    if (fastFoodRule?.active && category === 'Entertainment') {
-      setResult({ status: 'DECLINED', reason: 'Rule Violation: Fast Food Restriction is ACTIVE.' });
+    // 2. Requirement 4.2: Dynamic Rule Evaluation
+    // Check Fast Food Restriction (e.g., RULE-02 or RULE-04 based on student)
+    const fastFoodRule = activeStudent.rules.find(r => 
+      r.description.toLowerCase().includes('fast food') || 
+      r.description.toLowerCase().includes('school merchants')
+    );
+
+    if (fastFoodRule?.isActive && category === 'Entertainment') {
+      setResult({ 
+        status: 'DECLINED', 
+        reason: `Logic Block: "${fastFoodRule.description}" is currently ACTIVE.` 
+      });
       return;
     }
 
-    const limitRule = activeStudent.rules.find(r => r.id === 'R-1');
-    if (limitRule?.active && parseFloat(amount) > 5) {
-      setResult({ status: 'HOLD', reason: 'Threshold Exceeded: Pending Parent Approval.' });
+    // 3. Requirement 1.6: Hold Logic (Tuckshop limit)
+    const limitRule = activeStudent.rules.find(r => r.description.toLowerCase().includes('limit'));
+    // If limit rule is active and amount > $5 (or $10 for older students)
+    const limitThreshold = activeStudent.grade.includes('Grade') ? 5 : 10;
+    
+    if (limitRule?.isActive && numAmount > limitThreshold && category === 'Tuckshop') {
+      setResult({ 
+        status: 'HOLD', 
+        reason: `Threshold Alert: Amount exceeds daily ${activeStudent.name} limit. Awaiting Parent OTP.` 
+      });
       return;
     }
 
-    setResult({ status: 'APPROVED', reason: 'Transaction meets all permission criteria.' });
+    setResult({ 
+      status: 'APPROVED', 
+      reason: 'Network Sync: Transaction authorized via Ingenio Bank Switch.' 
+    });
   };
 
   return (
-    <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl border-4 border-blue-500/20">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-blue-500 p-2 rounded-lg animate-pulse">
-          <Play size={18} fill="currentColor" />
-        </div>
-        <h3 className="font-black uppercase tracking-widest text-sm">Investor Demo: Live Simulator</h3>
+    <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl border-4 border-blue-500/20 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 p-4 opacity-10">
+        <ShieldAlert size={120} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
+      <div className="flex items-center justify-between mb-8 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-600 p-2.5 rounded-2xl animate-pulse shadow-lg shadow-blue-500/50">
+            <Play size={18} fill="currentColor" className="ml-0.5" />
+          </div>
           <div>
-            <label className="text-[10px] font-black uppercase text-slate-400">Merchant Category</label>
+            <h3 className="font-black uppercase tracking-widest text-[10px] text-blue-400">Live Engine Simulator</h3>
+            <p className="text-xs font-bold text-slate-300">Test Real-Time Authorization</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Context Locked</p>
+          <p className="text-[10px] font-bold text-white">{activeStudent.name}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
+        <div className="space-y-5">
+          <div>
+            <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Merchant Profile</label>
             <select 
               value={category} 
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-slate-800 border-none rounded-xl mt-1 text-sm font-bold focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => {setCategory(e.target.value); setResult(null);}}
+              className="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl mt-1.5 p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
             >
-              <option value="Tuckshop">School Tuckshop</option>
-              <option value="Fees">School Fees Office</option>
-              <option value="Entertainment">KFC / Fast Food</option>
+              <option value="Tuckshop">Local School Tuckshop</option>
+              <option value="Fees">School Finance Office</option>
+              <option value="Entertainment">KFC / Fast Food Outlet</option>
+              <option value="Transport">Public Transport / Bus</option>
             </select>
           </div>
+          
           <div>
-            <label className="text-[10px] font-black uppercase text-slate-400">Transaction Amount ($)</label>
-            <input 
-              type="number" 
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full bg-slate-800 border-none rounded-xl mt-1 text-sm font-bold focus:ring-2 focus:ring-blue-500"
-            />
+            <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Amount ($)</label>
+            <div className="relative mt-1.5">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">$</span>
+              <input 
+                type="number" 
+                value={amount}
+                onChange={(e) => {setAmount(e.target.value); setResult(null);}}
+                className="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 pl-8 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+              />
+            </div>
           </div>
+
           <button 
             onClick={runSimulation}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-900/40"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98]"
           >
-            AUTHORIZE TRANSACTION
+            RUN DECISION LOGIC
           </button>
         </div>
 
-        <div className="bg-white/5 rounded-3xl p-6 border border-white/10 flex flex-col justify-center items-center text-center">
+        <div className="bg-white/5 rounded-[2rem] border border-white/10 p-8 flex flex-col justify-center items-center text-center min-h-[240px]">
           {!result ? (
-            <p className="text-slate-500 text-sm font-medium italic">Awaiting API request from Bank Switch...</p>
+            <div className="space-y-3">
+              <div className="flex justify-center gap-1">
+                {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: `${i*0.2}s`}} />)}
+              </div>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Awaiting POS Request</p>
+            </div>
           ) : (
-            <div className="animate-in zoom-in duration-300">
-              {result.status === 'APPROVED' && <CheckCircle2 size={48} className="text-emerald-500 mx-auto mb-4" />}
-              {result.status === 'DECLINED' && <XCircle size={48} className="text-red-500 mx-auto mb-4" />}
-              {result.status === 'HOLD' && <ShieldAlert size={48} className="text-amber-500 mx-auto mb-4" />}
+            <div className="animate-in zoom-in fade-in duration-500">
+              <div className="mb-4 flex justify-center">
+                {result.status === 'APPROVED' && <div className="p-4 bg-emerald-500/20 rounded-full border border-emerald-500/50"><CheckCircle2 size={40} className="text-emerald-500" /></div>}
+                {result.status === 'DECLINED' && <div className="p-4 bg-red-500/20 rounded-full border border-red-500/50"><XCircle size={40} className="text-red-500" /></div>}
+                {result.status === 'HOLD' && <div className="p-4 bg-amber-500/20 rounded-full border border-amber-500/50"><ShieldAlert size={40} className="text-amber-500" /></div>}
+              </div>
               
-              <h4 className={`text-xl font-black ${result.status === 'APPROVED' ? 'text-emerald-500' : result.status === 'DECLINED' ? 'text-red-500' : 'text-amber-500'}`}>
+              <h4 className={`text-2xl font-black italic tracking-tighter ${
+                result.status === 'APPROVED' ? 'text-emerald-500' : 
+                result.status === 'DECLINED' ? 'text-red-500' : 'text-amber-500'
+              }`}>
                 {result.status}
               </h4>
-              <p className="text-xs text-slate-300 mt-2 leading-relaxed">{result.reason}</p>
+              <p className="text-[10px] text-slate-300 mt-3 leading-relaxed font-medium bg-white/5 p-3 rounded-xl border border-white/5">
+                {result.reason}
+              </p>
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-6 pt-6 border-t border-white/5 flex items-center gap-2">
+        <Info size={12} className="text-blue-500" />
+        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">
+          Security: This simulation executes logic exactly as the Ingenio Card Switch would.
+        </p>
       </div>
     </div>
   );

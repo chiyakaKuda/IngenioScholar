@@ -1,4 +1,3 @@
-// components/dashboard/Sidebar.tsx
 "use client";
 
 import React, { useState } from 'react';
@@ -6,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, Wallet, ShieldCheck, 
-  History, Settings, LogOut, Zap, ChevronDown, UserCircle, X 
+  History, Settings, LogOut, Zap, ChevronDown, UserCircle, X, Bell, CheckSquare 
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
@@ -20,6 +19,8 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
     { icon: Wallet, label: 'Wallets', href: '/dashboard/wallets' },
     { icon: Zap, label: 'Rules Engine', href: '/dashboard/rules' },
     { icon: History, label: 'Activity Log', href: '/dashboard/history' },
+    { icon: CheckSquare, label: 'Approvals', href: '/dashboard/approvals', badge: true },
+    { icon: Bell, label: 'Alert Center', href: '/dashboard/alerts' },
   ];
 
   return (
@@ -29,13 +30,13 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
         <div className="p-6">
           <div className="flex items-center justify-between mb-8 px-2">
             <div className="flex items-center gap-2">
-              <div className="bg-blue-600 p-1.5 rounded-lg text-white"><ShieldCheck size={20} /></div>
+              <div className="bg-blue-600 p-1.5 rounded-xl text-white shadow-lg shadow-blue-200"><ShieldCheck size={20} /></div>
               <span className="font-black text-xl tracking-tighter">INGENIO</span>
             </div>
             <button onClick={() => setIsOpen(false)} className="lg:hidden p-2 text-slate-400"><X size={20} /></button>
           </div>
 
-          {/* Student Switcher - Drives the Demo */}
+          {/* Student Switcher */}
           <div className="relative mb-8">
             <button onClick={() => setShowSwitcher(!showSwitcher)} className="w-full flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl">
               <div className="flex items-center gap-3">
@@ -62,8 +63,19 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
 
           <nav className="space-y-1">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${pathname === item.href ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' : 'text-slate-400 hover:text-slate-900'}`}>
-                <item.icon size={18} /> {item.label}
+              <Link 
+                key={item.href} 
+                href={item.href} 
+                className={`flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                  pathname === item.href ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <item.icon size={18} /> {item.label}
+                </div>
+                {item.badge && (
+                  <span className="bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">1</span>
+                )}
               </Link>
             ))}
           </nav>
@@ -77,6 +89,9 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{data.parent.role}</p>
             </div>
           </div>
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-red-400 hover:bg-red-50">
+            <LogOut size={18} /> Logout
+          </button>
         </div>
       </aside>
     </>

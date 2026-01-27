@@ -6,14 +6,17 @@ import { Search, Filter, Download, CheckCircle2, XCircle, AlertCircle } from 'lu
 
 export default function ActivityLogPage() {
   const { activeStudent, data } = useApp();
+  
+  // Filter transactions for the current student
   const transactions = data.transactions.filter(t => t.studentId === activeStudent.id);
 
   return (
     <div className="space-y-8 pb-10">
+      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900">Activity Log</h2>
-          <p className="text-slate-500">Immutable decision history for {activeStudent.name}</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Activity Log</h2>
+          <p className="text-slate-500 font-medium">Immutable decision history for {activeStudent.name}.</p>
         </div>
         <div className="flex gap-2">
           <button className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 shadow-sm transition-all">
@@ -25,6 +28,7 @@ export default function ActivityLogPage() {
         </div>
       </div>
 
+      {/* Transaction Table */}
       <div className="bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-50 bg-slate-50/30">
           <div className="relative max-w-md">
@@ -49,25 +53,27 @@ export default function ActivityLogPage() {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {transactions.map((tx) => (
-                <tr key={tx.id} className="hover:bg-slate-50/30 transition-colors">
+                <tr key={tx.id} className="hover:bg-slate-50/30 transition-colors group">
                   <td className="px-8 py-6">
-                    <p className="font-bold text-slate-900">{tx.merchant}</p>
-                    <p className="text-[10px] font-medium text-slate-400 uppercase">{new Date(tx.timestamp).toLocaleString()}</p>
+                    <p className="font-bold text-slate-900">{tx.merchantName}</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{tx.date}</p>
                   </td>
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-2">
                       <div className={`w-1.5 h-1.5 rounded-full ${tx.status === 'Approved' ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                      <p className="text-xs font-bold text-slate-600">{tx.ruleApplied.replace(/_/g, ' ')}</p>
+                      <p className="text-xs font-bold text-slate-600">
+                        {tx.ruleApplied ? tx.ruleApplied.replace(/_/g, ' ') : 'System Default'}
+                      </p>
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <p className={`font-black ${tx.amount < 0 ? 'text-slate-900' : 'text-blue-600'}`}>
-                      {tx.amount < 0 ? '-' : '+'}${Math.abs(tx.amount).toFixed(2)}
+                    <p className={`font-black ${tx.status === 'Declined' ? 'text-slate-400' : 'text-slate-900'}`}>
+                      {tx.status === 'Approved' ? '-' : ''}${Math.abs(tx.amount).toFixed(2)}
                     </p>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase">{tx.category} Wallet</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{tx.walletUsed} Wallet</p>
                   </td>
                   <td className="px-8 py-6 text-right">
-                    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
                       tx.status === 'Approved' ? 'bg-emerald-50 text-emerald-600' : 
                       tx.status === 'Declined' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
                     }`}>
@@ -81,6 +87,12 @@ export default function ActivityLogPage() {
               ))}
             </tbody>
           </table>
+          
+          {transactions.length === 0 && (
+            <div className="p-20 text-center">
+              <p className="text-slate-400 font-bold italic">No transactions recorded for this period.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
