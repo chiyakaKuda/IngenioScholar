@@ -1,6 +1,7 @@
 import { Nunito, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Metadata } from "next";
+import { AppProvider } from '@/context/AppContext';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -29,9 +30,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${nunito.variable} ${jetbrains.variable} scroll-smooth`}>
+      <AppProvider>
+         
+      
       <body className="antialiased font-sans bg-[#F8FAFC] text-[#0E1D21]">
         {children}
       </body>
+      </AppProvider>
     </html>
   );
 }
